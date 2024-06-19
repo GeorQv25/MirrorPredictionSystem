@@ -12,6 +12,7 @@ public class PlayerController : NetworkBehaviour
 {
     [SerializeField] private Transform orientation;
     [SerializeField] private LayerMask maskToAvoid;
+    [SerializeField] private BallLauncher _launcher;
 
     private Rigidbody playerRb;
     private float height = 2f;
@@ -44,6 +45,10 @@ public class PlayerController : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             Jump();
+        }
+        else if (Input.GetMouseButtonDown(0) && _launcher)
+        {
+            _launcher.Shoot();
         }
     }
 
