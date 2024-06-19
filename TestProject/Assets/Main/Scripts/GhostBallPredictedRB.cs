@@ -69,16 +69,20 @@ public class GhostBallPredictedRB : NetworkBehaviour
 
     public void PushBall(Vector3 force, Vector3 pushPos)
     {
-        predictedRigidbody.velocity = Vector3.zero;
-        predictedRigidbody.constraints = RigidbodyConstraints.FreezeAll;
-        predictedRigidbody.constraints = RigidbodyConstraints.None;
-        predictedRigidbody.position = pushPos;
-        predictedRigidbody.AddForce(force, ForceMode.Impulse);
         if (ghostRigidbody)
         {
+            ghostRigidbody.constraints = RigidbodyConstraints.FreezeAll;
+            ghostRigidbody.constraints = RigidbodyConstraints.None;
+            ghostRigidbody.velocity = Vector3.zero;
             ghostRigidbody.position = pushPos;
             ghostRigidbody.AddForce(force, ForceMode.Impulse);
         }
+
+        predictedRigidbody.constraints = RigidbodyConstraints.FreezeAll;
+        predictedRigidbody.constraints = RigidbodyConstraints.None;
+        predictedRigidbody.velocity = Vector3.zero;
+        predictedRigidbody.position = pushPos;
+        predictedRigidbody.AddForce(force, ForceMode.Impulse);
     }
 
     public override void OnSerialize(NetworkWriter writer, bool initialState)
