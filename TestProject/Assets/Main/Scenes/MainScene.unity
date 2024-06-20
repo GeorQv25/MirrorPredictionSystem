@@ -180,8 +180,9 @@ MonoBehaviour:
   predictedRigidbody: {fileID: 113290008}
   positionTolerance: 0.1
   hardCorrectionTolerance: 30
-  minCorrectionSpeed: 2
-  maxCorrectionSpeed: 3
+  velocityAngleTolerance: 90
+  minCorrectionSpeed: 1
+  maxCorrectionSpeed: 2
   velocityCorrectionSpeed: 2
   gizmoRadius: 0.7
 --- !u!54 &113290008
@@ -895,7 +896,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wrap: {fileID: 845172313}
-  latency: 5
+  latency: 170
   jitter: 0.02
   jitterSpeed: 1
   unreliableLoss: 2

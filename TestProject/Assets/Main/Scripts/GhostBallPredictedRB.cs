@@ -16,7 +16,7 @@ struct BallState
 public class GhostBallPredictedRB : NetworkBehaviour
 {
     [SerializeField] private Rigidbody predictedRigidbody;
-    [SerializeField] private float positionTolerance, hardCorrectionTolerance;
+    [SerializeField] private float positionTolerance, hardCorrectionTolerance, velocityAngleTolerance;
     [SerializeField] private float minCorrectionSpeed, maxCorrectionSpeed, velocityCorrectionSpeed;
     [Header("DEBUG")]
     [SerializeField] private float gizmoRadius = 1f;
@@ -66,6 +66,8 @@ public class GhostBallPredictedRB : NetworkBehaviour
 
         float speed = minCorrectionSpeed + maxCorrectionSpeed - Mathf.Clamp(distance, 0, maxCorrectionSpeed);
         predictedRigidbody.MovePosition(Vector3.Lerp(predictedRigidbody.position, ghostRigidbody.position, Time.deltaTime * speed));
+
+        if (Vector3.Angle(predictedRigidbody.velocity, ghostRigidbody.velocity) >= velocityAngleTolerance) return;
         predictedRigidbody.velocity = Vector3.Lerp(predictedRigidbody.velocity, ghostRigidbody.velocity, Time.deltaTime * velocityCorrectionSpeed);
     }
 
@@ -90,6 +92,23 @@ public class GhostBallPredictedRB : NetworkBehaviour
         if (ghostRigidbody)
         {
             ghostRigidbody.transform.position = pushPos;
+            ghostRigidbody.constraints = RigidbodyConstraints.FreezeAll;
+            ghostRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+            ghostRigidbody.velocity = Vector3.zero;
+            ghostRigidbody.AddForce(force, ForceMode.Impulse);
+        }
+    }
+
+    public void PushBall(Vector3 force)
+    {
+        predictedRigidbody.constraints = RigidbodyConstraints.FreezeAll;
+        predictedRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+        predictedRigidbody.velocity = Vector3.zero;
+        predictedRigidbody.AddForce(force, ForceMode.Impulse);
+
+
+        if (ghostRigidbody)
+        {
             ghostRigidbody.constraints = RigidbodyConstraints.FreezeAll;
             ghostRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
             ghostRigidbody.velocity = Vector3.zero;
