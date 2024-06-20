@@ -186,7 +186,7 @@ MonoBehaviour:
   minVelocityCorrectionSpeed: 1
   maxVelocityCorrectionSpeed: 2
   maxCorrectionDistance: 5
-  syncTime: 40
+  syncTime: 15
   syncSpeed: 20
   gizmoRadius: 0.5
 --- !u!54 &113290008

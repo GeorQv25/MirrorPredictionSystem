@@ -88,12 +88,14 @@ public class GhostBallPredictedRB : NetworkBehaviour
     //}
     private void MoveBallToGhost(float distance)
     {
+        Debug.DrawRay(transform.position, predictedRigidbody.velocity, Color.green, Time.deltaTime);
         if(NetworkTime.localTime < lastForceTime + syncTime)
         {
             float time = ((float)lastForceTime + syncTime - (float)NetworkTime.localTime) / syncTime;
             time = 1f - time;
             //Debug.Log(time);
             predictedRigidbody.MovePosition(Vector3.Lerp(predictedRigidbody.position, ghostRigidbody.position, time));
+            if (Vector3.Angle(predictedRigidbody.velocity, ghostRigidbody.velocity) >= velocityAngleTolerance) return;
             predictedRigidbody.velocity = Vector3.Lerp(predictedRigidbody.velocity, ghostRigidbody.velocity, time);
         }
         else
