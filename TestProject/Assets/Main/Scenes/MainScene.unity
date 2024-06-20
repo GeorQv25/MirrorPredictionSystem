@@ -179,12 +179,16 @@ MonoBehaviour:
   syncInterval: 0
   predictedRigidbody: {fileID: 113290008}
   positionTolerance: 0.1
-  hardCorrectionTolerance: 30
-  velocityAngleTolerance: 90
+  hardCorrectionTolerance: 10
+  velocityAngleTolerance: 10
   minCorrectionSpeed: 1
-  maxCorrectionSpeed: 2
-  velocityCorrectionSpeed: 2
-  gizmoRadius: 0.7
+  maxCorrectionSpeed: 15
+  minVelocityCorrectionSpeed: 1
+  maxVelocityCorrectionSpeed: 2
+  maxCorrectionDistance: 5
+  syncTime: 40
+  syncSpeed: 20
+  gizmoRadius: 0.5
 --- !u!54 &113290008
 Rigidbody:
   m_ObjectHideFlags: 0

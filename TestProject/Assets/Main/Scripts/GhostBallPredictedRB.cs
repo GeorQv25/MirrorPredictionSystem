@@ -1,5 +1,6 @@
 using Mirror;
 using UnityEngine;
+using System;
 
 struct BallState
 {
@@ -17,7 +18,12 @@ public class GhostBallPredictedRB : NetworkBehaviour
 {
     [SerializeField] private Rigidbody predictedRigidbody;
     [SerializeField] private float positionTolerance, hardCorrectionTolerance, velocityAngleTolerance;
-    [SerializeField] private float minCorrectionSpeed, maxCorrectionSpeed, velocityCorrectionSpeed;
+    [SerializeField] private float minCorrectionSpeed, maxCorrectionSpeed, minVelocityCorrectionSpeed, maxVelocityCorrectionSpeed, maxCorrectionDistance;
+    [Header("Time prediction")]
+    [SerializeField] private float syncTime;
+    [SerializeField] private float syncSpeed;
+    private double lastForceTime;
+
     [Header("DEBUG")]
     [SerializeField] private float gizmoRadius = 1f;
 
@@ -60,15 +66,41 @@ public class GhostBallPredictedRB : NetworkBehaviour
             HardCorrect();
     }
 
+    //private void MoveBallToGhost(float distance)
+    //{
+    //    if (distance <= positionTolerance) return;
+    //    //Debug.Log(Vector3.Angle(predictedRigidbody.velocity, ghostRigidbody.velocity));
+    //    float maxDistance = maxCorrectionDistance;
+    //    float currentDistance = Mathf.Clamp(distance, 0, maxDistance);
+    //    float speed = Mathf.Lerp(maxCorrectionSpeed, minCorrectionSpeed, currentDistance/maxDistance);
+    //    Debug.Log(speed);
+
+    //    float velocitySpeed = Mathf.Lerp(minVelocityCorrectionSpeed, minVelocityCorrectionSpeed, currentDistance / maxDistance);
+    //    //float speed = minCorrectionSpeed + maxCorrectionSpeed - Mathf.Clamp(distance, 0, maxCorrectionSpeed);
+    //    if (Vector3.Angle(predictedRigidbody.velocity, ghostRigidbody.velocity) >= velocityAngleTolerance) return;
+
+    //    //float rttMultiplier = (float)Math.Round(NetworkTime.rtt * 10, 2);
+    //    //speed *= Mathf.Clamp(rttMultiplier, 1, 4);
+    //    //Debug.Log(rttMultiplier);
+    //    predictedRigidbody.MovePosition(Vector3.Lerp(predictedRigidbody.position, ghostRigidbody.position, Time.deltaTime * speed));
+
+    //    predictedRigidbody.velocity = Vector3.Lerp(predictedRigidbody.velocity, ghostRigidbody.velocity, Time.deltaTime * velocitySpeed);
+    //}
     private void MoveBallToGhost(float distance)
     {
-        if (distance <= positionTolerance) return;
-
-        float speed = minCorrectionSpeed + maxCorrectionSpeed - Mathf.Clamp(distance, 0, maxCorrectionSpeed);
-        predictedRigidbody.MovePosition(Vector3.Lerp(predictedRigidbody.position, ghostRigidbody.position, Time.deltaTime * speed));
-
-        if (Vector3.Angle(predictedRigidbody.velocity, ghostRigidbody.velocity) >= velocityAngleTolerance) return;
-        predictedRigidbody.velocity = Vector3.Lerp(predictedRigidbody.velocity, ghostRigidbody.velocity, Time.deltaTime * velocityCorrectionSpeed);
+        if(NetworkTime.localTime < lastForceTime + syncTime)
+        {
+            float time = ((float)lastForceTime + syncTime - (float)NetworkTime.localTime) / syncTime;
+            time = 1f - time;
+            //Debug.Log(time);
+            predictedRigidbody.MovePosition(Vector3.Lerp(predictedRigidbody.position, ghostRigidbody.position, time));
+            predictedRigidbody.velocity = Vector3.Lerp(predictedRigidbody.velocity, ghostRigidbody.velocity, time);
+        }
+        else
+        {
+            predictedRigidbody.MovePosition(Vector3.Lerp(predictedRigidbody.position, ghostRigidbody.position, Time.deltaTime * syncSpeed));
+            predictedRigidbody.velocity = Vector3.Lerp(predictedRigidbody.velocity, ghostRigidbody.velocity, Time.deltaTime * syncSpeed);
+        }
     }
 
     private void MoveGhostToServer()
@@ -81,6 +113,7 @@ public class GhostBallPredictedRB : NetworkBehaviour
     {
         if (localInputIndex == byte.MaxValue) localInputIndex = 0;
         localInputIndex++;
+
 
         predictedRigidbody.transform.position = pushPos;
         predictedRigidbody.constraints = RigidbodyConstraints.FreezeAll;
@@ -127,9 +160,13 @@ public class GhostBallPredictedRB : NetworkBehaviour
     {
         Vector3 position = reader.ReadVector3();
         Vector3 velocity = reader.ReadVector3();
+        byte lastServerInputIndex = serverInputIndex;
         serverInputIndex = reader.ReadByte();
 
         OnReceivedState(new BallState(position, velocity));
+        if(serverInputIndex == localInputIndex && lastServerInputIndex != serverInputIndex) 
+            lastForceTime = NetworkTime.localTime;
+
 
         if (initialState)
         {
