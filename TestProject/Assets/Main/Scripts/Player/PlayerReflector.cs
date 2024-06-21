@@ -17,6 +17,7 @@ public class PlayerReflector : NetworkBehaviour
         float impulse = Mathf.Clamp(collision.relativeVelocity.magnitude, 0, 30f);
         float force = collision.contacts[0].thisCollider.GetComponent<CapsuleCollider>() ? impulse / 20 : impulse / 2;
         Vector3 direction = Vector3.Reflect(collision.rigidbody.velocity, collision.contacts[0].normal).normalized;
-        if (collision.gameObject.TryGetComponent(out GhostBallPredictedRB ball)) ball.PushBall(direction * force);
+        //if (collision.gameObject.TryGetComponent(out GhostBallPredictedRB ball)) ball.PushBall(direction * force);
+        collision.rigidbody.velocity = direction * force;
     }
 }

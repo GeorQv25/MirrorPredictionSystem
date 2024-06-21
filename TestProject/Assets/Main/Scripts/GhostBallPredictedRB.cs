@@ -134,22 +134,22 @@ public class GhostBallPredictedRB : NetworkBehaviour
         }
     }
 
-    public void PushBall(Vector3 force)
-    {
-        predictedRigidbody.constraints = RigidbodyConstraints.FreezeAll;
-        predictedRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-        predictedRigidbody.velocity = Vector3.zero;
-        predictedRigidbody.AddForce(force, ForceMode.Impulse);
+    //public void PushBall(Vector3 force)
+    //{
+    //    predictedRigidbody.constraints = RigidbodyConstraints.FreezeAll;
+    //    predictedRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+    //    predictedRigidbody.velocity = Vector3.zero;
+    //    predictedRigidbody.AddForce(force, ForceMode.Impulse);
 
 
-        if (ghostRigidbody)
-        {
-            ghostRigidbody.constraints = RigidbodyConstraints.FreezeAll;
-            ghostRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-            ghostRigidbody.velocity = Vector3.zero;
-            ghostRigidbody.AddForce(force, ForceMode.Impulse);
-        }
-    }
+    //    if (ghostRigidbody)
+    //    {
+    //        ghostRigidbody.constraints = RigidbodyConstraints.FreezeAll;
+    //        ghostRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+    //        ghostRigidbody.velocity = Vector3.zero;
+    //        ghostRigidbody.AddForce(force, ForceMode.Impulse);
+    //    }
+    //}
 
     public override void OnSerialize(NetworkWriter writer, bool initialState)
     {
