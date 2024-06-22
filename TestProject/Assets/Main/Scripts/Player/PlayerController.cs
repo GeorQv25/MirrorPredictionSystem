@@ -41,7 +41,7 @@ public class PlayerController : NetworkBehaviour
 
     void PlayerInput()
     {
-        moveDir = orientation.forward * Input.GetAxisRaw("Vertical") + orientation.right * Input.GetAxisRaw("Horizontal");
+        if(isClientOnly) moveDir = orientation.forward * Input.GetAxisRaw("Vertical") + orientation.right * Input.GetAxisRaw("Horizontal");
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             Jump();
@@ -49,6 +49,13 @@ public class PlayerController : NetworkBehaviour
         else if (Input.GetMouseButtonDown(0) && _launcher)
         {
             _launcher.Shoot();
+        }
+
+        // TEST
+        if (isServer)
+        {
+            if (transform.position.x > 5) moveDir = new Vector3(-1, 0, 0);
+            else if (transform.position.x < -5) moveDir = new Vector3(1, 0, 0);
         }
     }
 
