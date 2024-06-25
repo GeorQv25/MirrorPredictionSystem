@@ -174,7 +174,6 @@ public class GhostBallPredictedRB : NetworkBehaviour
         if(serverInputIndex == localInputIndex && lastServerInputIndex != serverInputIndex) 
             lastForceTime = NetworkTime.localTime;
 
-
         if (initialState)
         {
             localInputIndex = serverInputIndex;

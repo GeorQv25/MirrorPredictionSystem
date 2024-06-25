@@ -11,4 +11,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Main/Scenes/JitterTest.unity
     guid: abe1d05a91ef5fa4aa20de4caba24187
-  m_configObjects: {}
+  m_configObjects:
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 96919c5d2a3a66343ad13dd94bb1ad35,
+      type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: a35fde8087561b24c9385b4e8e340d03,
+      type: 2}
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 39d765b02623ad2429767634a36982b8,
+      type: 2}

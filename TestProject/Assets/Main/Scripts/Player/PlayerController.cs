@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Mirror;
+using HTC.UnityPlugin.VRModuleManagement;
 
 
 public enum DragType
@@ -11,8 +12,17 @@ public enum DragType
 public class PlayerController : NetworkBehaviour
 {
     [SerializeField] private Transform orientation;
+    [SerializeField] private Transform _cameraHolder;
+    [SerializeField] private Transform _rightHand;
+    [SerializeField] private bool _wasPressed;
+    [SerializeField] private LineRenderer _lineRenderer;
+
+
     [SerializeField] private LayerMask maskToAvoid;
     [SerializeField] private BallLauncher _launcher;
+    
+    [SerializeField] private bool _isTestMode;
+    [SerializeField] private bool _isVrMode;
 
     private Rigidbody playerRb;
     private float height = 2f;
@@ -37,22 +47,16 @@ public class PlayerController : NetworkBehaviour
         SetGroundState();
         SetDrag();
         PlayerInput();
+        BallPush();
     }
 
     void PlayerInput()
     {
-        if(isClientOnly) moveDir = orientation.forward * Input.GetAxisRaw("Vertical") + orientation.right * Input.GetAxisRaw("Horizontal");
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            Jump();
-        }
-        else if (Input.GetMouseButtonDown(0) && _launcher)
-        {
-            _launcher.Shoot();
-        }
+        if (_isVrMode) { VRMovement(); }
+        else { KeyBoardMovement(); }
 
         // TEST
-        if (isServer)
+        if (isServer && _isTestMode)
         {
             if (transform.position.x > 5) moveDir = new Vector3(-1, 0, 0);
             else if (transform.position.x < -5) moveDir = new Vector3(1, 0, 0);
@@ -85,5 +89,69 @@ public class PlayerController : NetworkBehaviour
     private void Jump()
     {
         playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+    }
+
+    private void KeyBoardMovement()
+    {
+        if (isClientOnly) moveDir = orientation.forward * Input.GetAxisRaw("Vertical") + orientation.right * Input.GetAxisRaw("Horizontal");
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            Jump();
+        }
+        else if (Input.GetMouseButtonDown(0) && _launcher)
+        {
+            _launcher.Shoot();
+        }
+    }
+
+    private void VRMovement()
+    {
+        IVRModuleDeviceState deviceState = VRModule.GetDeviceState(VRModule.GetRightControllerDeviceIndex());
+        IVRModuleDeviceState deviceStateL = VRModule.GetDeviceState(VRModule.GetLeftControllerDeviceIndex());
+
+        Vector3 forward = Camera.main.transform.forward * deviceState.GetAxisValue(VRModuleRawAxis.Axis0Y);
+        forward = new Vector3(forward.x, 0, forward.z);
+        Vector3 right = Camera.main.transform.right * deviceState.GetAxisValue(VRModuleRawAxis.Axis0X);
+        right = new Vector3(right.x, 0, right.z);
+        moveDir = (forward + right).normalized;
+
+        //Debug.Log(deviceStateL.GetAxisValue(VRModuleRawAxis.Axis0X));
+        _cameraHolder.Rotate(deviceStateL.GetAxisValue(VRModuleRawAxis.Axis0X) * new Vector3(0, 1, 0));
+        //playerMove.position += (forward + right).normalized * speed * Time.fixedDeltaTime;
+    }
+
+    private void BallPush()
+    {
+        IVRModuleDeviceState deviceState = VRModule.GetDeviceState(VRModule.GetRightControllerDeviceIndex());
+        _lineRenderer.enabled = true;
+        _lineRenderer.SetPosition(0, _rightHand.position);
+        _lineRenderer.SetPosition(1, _rightHand.position + _rightHand.forward * 10);
+        if (!deviceState.GetButtonPress(VRModuleRawButton.A))
+        {
+            //_lineRenderer.enabled = false;
+            _wasPressed = false;
+            return;
+        }
+        if (!_wasPressed)
+        {
+            ApplyForceToBall();
+        }
+        _wasPressed = true;
+    }
+
+    private void ApplyForceToBall()
+    {
+        if(Physics.Raycast(_rightHand.position, _rightHand.forward, out RaycastHit hitInfo, 10))
+        {
+            Debug.Log(hitInfo.transform.name);
+            if(hitInfo.transform.TryGetComponent(out Rigidbody rb))
+            {
+                hitInfo.rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+                hitInfo.rigidbody.velocity = Vector3.zero;
+                hitInfo.rigidbody.constraints = RigidbodyConstraints.None;
+                hitInfo.transform.position = _rightHand.position;
+                //rb.AddForce(-(hitInfo.transform.position - transform.position).normalized * 14 + Vector3.up * 3, ForceMode.Impulse);
+            }
+        }
     }
 }
