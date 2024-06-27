@@ -16,24 +16,21 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Transform _rightHand;
     [SerializeField] private bool _wasPressed;
     [SerializeField] private LineRenderer _lineRenderer;
-
-
     [SerializeField] private LayerMask maskToAvoid;
     [SerializeField] private BallLauncher _launcher;
-    
     [SerializeField] private bool _isTestMode;
-    [SerializeField] private bool _isVrMode;
 
+    private ControllerBase _controller;
     private Rigidbody playerRb;
     private float height = 2f;
     private float heightOffset = 0.35f;
-    private Vector3 moveDir;
-    private float moveSepeed = 10f;
-    private float speedMultipl = 6.5f;
-    private float speedMultiplInAir = 0.6f;
-    private float jumpForce = 8;
     private bool isGrounded;
 
+
+    public void Initialize(ControllerBase controller)
+    {
+        _controller = controller;
+    }
 
     private void Start()
     {
@@ -43,25 +40,13 @@ public class PlayerController : NetworkBehaviour
     private void Update()
     {
         if (!isLocalPlayer) { return; }
+        _controller.SetDirection();
 
         SetGroundState();
         SetDrag();
-        PlayerInput();
         BallPush();
     }
 
-    void PlayerInput()
-    {
-        if (_isVrMode) { VRMovement(); }
-        else { KeyBoardMovement(); }
-
-        // TEST
-        if (isServer && _isTestMode)
-        {
-            if (transform.position.x > 5) moveDir = new Vector3(-1, 0, 0);
-            else if (transform.position.x < -5) moveDir = new Vector3(1, 0, 0);
-        }
-    }
 
     void SetGroundState()
     {
@@ -80,44 +65,26 @@ public class PlayerController : NetworkBehaviour
 
         if (isGrounded)
         {
-            playerRb.AddForce(moveDir.normalized * moveSepeed * speedMultipl, ForceMode.Acceleration);
-            return;
+            _controller.Move();
         }
-        playerRb.AddForce(moveDir.normalized * moveSepeed * speedMultiplInAir, ForceMode.Acceleration);
     }
 
-    private void Jump()
-    {
-        playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-    }
 
-    private void KeyBoardMovement()
-    {
-        if (isClientOnly) moveDir = orientation.forward * Input.GetAxisRaw("Vertical") + orientation.right * Input.GetAxisRaw("Horizontal");
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            Jump();
-        }
-        else if (Input.GetMouseButtonDown(0) && _launcher)
-        {
-            _launcher.Shoot();
-        }
-    }
 
     private void VRMovement()
     {
-        IVRModuleDeviceState deviceState = VRModule.GetDeviceState(VRModule.GetRightControllerDeviceIndex());
-        IVRModuleDeviceState deviceStateL = VRModule.GetDeviceState(VRModule.GetLeftControllerDeviceIndex());
+        //IVRModuleDeviceState deviceState = VRModule.GetDeviceState(VRModule.GetRightControllerDeviceIndex());
+        //IVRModuleDeviceState deviceStateL = VRModule.GetDeviceState(VRModule.GetLeftControllerDeviceIndex());
 
-        Vector3 forward = Camera.main.transform.forward * deviceState.GetAxisValue(VRModuleRawAxis.Axis0Y);
-        forward = new Vector3(forward.x, 0, forward.z);
-        Vector3 right = Camera.main.transform.right * deviceState.GetAxisValue(VRModuleRawAxis.Axis0X);
-        right = new Vector3(right.x, 0, right.z);
-        moveDir = (forward + right).normalized;
+        //Vector3 forward = Camera.main.transform.forward * deviceState.GetAxisValue(VRModuleRawAxis.Axis0Y);
+        //forward = new Vector3(forward.x, 0, forward.z);
+        //Vector3 right = Camera.main.transform.right * deviceState.GetAxisValue(VRModuleRawAxis.Axis0X);
+        //right = new Vector3(right.x, 0, right.z);
+        //moveDir = (forward + right).normalized;
 
-        //Debug.Log(deviceStateL.GetAxisValue(VRModuleRawAxis.Axis0X));
-        _cameraHolder.Rotate(deviceStateL.GetAxisValue(VRModuleRawAxis.Axis0X) * new Vector3(0, 1, 0));
-        //playerMove.position += (forward + right).normalized * speed * Time.fixedDeltaTime;
+        ////Debug.Log(deviceStateL.GetAxisValue(VRModuleRawAxis.Axis0X));
+        //_cameraHolder.Rotate(deviceStateL.GetAxisValue(VRModuleRawAxis.Axis0X) * new Vector3(0, 1, 0));
+        ////playerMove.position += (forward + right).normalized * speed * Time.fixedDeltaTime;
     }
 
     private void BallPush()
@@ -155,3 +122,22 @@ public class PlayerController : NetworkBehaviour
         }
     }
 }
+
+//void PlayerInput()
+//{
+
+//    // TEST
+//    if (isServer && _isTestMode)
+//    {
+//        if (transform.position.x > 5) moveDir = new Vector3(-1, 0, 0);
+//        else if (transform.position.x < -5) moveDir = new Vector3(1, 0, 0);
+//    }
+//}
+
+//private void KeyBoardMovement()
+//{
+//    if (Input.GetMouseButtonDown(0) && _launcher)
+//    {
+//        _launcher.Shoot();
+//    }
+//}

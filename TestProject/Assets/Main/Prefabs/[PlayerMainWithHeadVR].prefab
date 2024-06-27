@@ -653,6 +653,7 @@ GameObject:
   - component: {fileID: 7935804828702284551}
   - component: {fileID: 7746720489482921658}
   - component: {fileID: 1744269801789683228}
+  - component: {fileID: 4129354536838995619}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -714,13 +715,13 @@ MonoBehaviour:
   orientation: {fileID: 5598664920909039655}
   _cameraHolder: {fileID: 8405035835428107022}
   _rightHand: {fileID: 7166191310058810951}
+  _wasPressed: 0
   _lineRenderer: {fileID: 7244353045360652514}
   maskToAvoid:
     serializedVersion: 2
     m_Bits: 320
   _launcher: {fileID: 7746720489482921658}
   _isTestMode: 0
-  _isVrMode: 1
 --- !u!114 &7678440336448635111
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -788,6 +789,28 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+--- !u!114 &4129354536838995619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3402304001653313558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58596845dc5aea941885c421c13ca47e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  _shouldHide: 1
+  _renderers:
+  - {fileID: 5666635412871775079}
+  - {fileID: 6119765646176327613}
+  _playerController: {fileID: 3455265354497059806}
+  _orientation: {fileID: 5598664920909039655}
+  _rb: {fileID: 2498057520997938120}
 --- !u!1 &4328083167720648964
 GameObject:
   m_ObjectHideFlags: 0
@@ -893,7 +916,7 @@ MonoBehaviour:
   _renderers:
   - {fileID: 6119765646176327613}
   - {fileID: 5666635412871775079}
-  _shouldHide: 1
+  _shouldHide: 0
 --- !u!1 &6057142069108393006
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,6 +1,6 @@
 using HTC.UnityPlugin.VRModuleManagement;
 using UnityEngine;
-using UnityEngine.Serialization;
+
 
 namespace VRInteraction.Example
 {
